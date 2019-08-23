@@ -1,0 +1,36 @@
+{
+  "name": "msgpack-rpc-node",
+  "version": "1.0.0",
+  "description": "MessagePack RPC implementation for Node",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "format": "prettier --write 'src/**/*.ts'",
+    "lint": "eslint --ext .ts src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theJian/msgpack-rpc-node.git"
+  },
+  "keywords": [],
+  "author": "theJian <thejianmail@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theJian/msgpack-rpc-node/issues"
+  },
+  "homepage": "https://github.com/theJian/msgpack-rpc-node#readme",
+  "dependencies": {
+    "@msgpack/msgpack": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.2",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint": "^6.2.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "prettier": "1.18.2",
+    "typescript": "^3.5.3"
+  }
+}
