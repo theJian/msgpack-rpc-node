@@ -1,5 +1,4 @@
 import { decode } from '@msgpack/msgpack';
-import { Session } from '../session'
 import { RPCError } from '../error'
 import * as messageType from '../message'
 
@@ -36,6 +35,7 @@ export abstract class ClientTransport implements BaseTransport {
   abstract sendData(data: any): void;
   abstract close(): void;
   abstract onResponse(msgId: MsgId, error: Error, result: unknown): void;
+  abstract connect(): boolean | Promise<boolean>;
 
   onRead(data: Buffer) {
     const message = decode(data);

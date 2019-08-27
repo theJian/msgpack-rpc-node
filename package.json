@@ -4,6 +4,7 @@
   "description": "MessagePack RPC implementation for Node",
   "main": "./dist/index.js",
   "scripts": {
+    "pretest": "npm run build",
     "test": "jest",
     "build": "tsc",
     "format": "prettier --write 'src/**/*.ts'",

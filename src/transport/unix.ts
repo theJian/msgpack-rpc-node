@@ -8,7 +8,6 @@ import { Server } from '../server';
 export class UnixServer extends ServerTransport {
   private socket?: net.Socket;
   private socketServer: net.Server;
-  private isConnected: boolean;
 
   constructor(private server: Server, path: string) {
     super();
@@ -17,15 +16,12 @@ export class UnixServer extends ServerTransport {
       throw new ServerError(`Path exists. path = ${path}`)
     }
 
-    this.isConnected = false;
     this.socketServer = net.createServer(socket => {
       this.socket = socket;
       socket.on('data', data => {
         this.onRead(data);
       })
     })
-    .on('connection', () => { this.isConnected = true; })
-    .on('close', () => { this.isConnected = false; })
     .listen(path);
   }
 
@@ -45,7 +41,7 @@ export class UnixServer extends ServerTransport {
   }
 
   sendData(data: Uint8Array) {
-    if (!this.isConnected || !this.socket) {
+    if (!this.socket || this.socket.connecting || this.socket.destroyed) {
       throw new NoConnectionError('Server is not running.');
     }
     this.socket.write(data);
@@ -58,16 +54,19 @@ export class UnixServer extends ServerTransport {
 
 export class UnixClient extends ClientTransport {
   private client: net.Socket;
-  private isConnected: boolean;
 
   constructor(private session: Session<UnixClient>, path: string) {
     super();
-    this.isConnected = false;
     this.client = net.createConnection(path)
-    .on('connect', () => { this.isConnected = true })
-    .on('close', () => { this.isConnected = false; })
     .on('data', data => {
       this.onRead(data);
+    });
+  }
+
+  connect(): Promise<boolean> | boolean {
+    if (!this.client.connecting) return true;
+    return new Promise(resolve => {
+      this.client.on('connect', () => resolve(true))
     });
   }
 
@@ -76,7 +75,7 @@ export class UnixClient extends ClientTransport {
   }
 
   sendData(data: Uint8Array) {
-    if (!this.isConnected) {
+    if (this.client.destroyed || this.client.connecting) {
       throw new NoConnectionError('Client is not connected to server.');
     }
     this.client.write(data);

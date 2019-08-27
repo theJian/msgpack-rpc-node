@@ -15,6 +15,10 @@ export class Session<T extends ClientTransport> {
     this.transport = new builder(this, ...builderParams);
   }
 
+  connect() {
+    return this.transport.connect();
+  }
+
   call(method: string, ...params: unknown[]): Promise<unknown> {
     const msgId: number = this.generator.next().value;
     const data: Uint8Array = encode([messageType.REQUEST, msgId, method, params]);
@@ -36,11 +40,15 @@ export class Session<T extends ClientTransport> {
       delete this.requestTable[msgId];
 
       if (error != null) {
-        resolve(result);
-      } else {
         reject(error);
+      } else {
+        resolve(result);
       }
     }
+  }
+
+  close() {
+    return this.transport.close();
   }
 }
 

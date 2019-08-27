@@ -3,7 +3,7 @@ import * as messageType from './message';
 import { ServerTransport, MsgId } from './transport/base'
 import { NoMethodError } from './error'
 
-export type Dispatcher = { [key: string]: (...args: unknown[]) => unknown }
+export type Dispatcher = { [key: string]: (...args: any[]) => any }
 
 export class Server {
   transport?: ServerTransport;
@@ -18,8 +18,9 @@ export class Server {
   listen<T extends ServerTransport>(
     builder: new (...args: any) => T,
     ...builderParams: ConstructorParameters<typeof builder>
-  ) {
+  ): Server {
     this.transport = new builder(this, ...builderParams);
+    return this;
   }
 
   dispatchMethod(
@@ -35,12 +36,22 @@ export class Server {
       return;
     }
 
-    const earlyResult = this.dispatcher[method](...params);
-    if (responseFn) {
-      Promise.resolve(earlyResult).then(
-        result => { responseFn(encode([messageType.RESPONSE, msgId, null, result])) },
-        error => { responseFn(encode([messageType.RESPONSE, msgId, error, null])) }
-      )
+    try {
+      const earlyResult = this.dispatcher[method](...params);
+      if (responseFn) {
+        Promise.resolve(earlyResult).then(
+          result => { responseFn(encode([messageType.RESPONSE, msgId, null, result])) },
+          error => { responseFn(encode([messageType.RESPONSE, msgId, error, null])) }
+        )
+      }
+    } catch (e) {
+      responseFn && responseFn(
+        encode([messageType.RESPONSE, msgId, e, null])
+      );
     }
+  }
+
+  close() {
+    return this.transport && this.transport.close();
   }
 }
