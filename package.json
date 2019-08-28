@@ -1,6 +1,6 @@
 {
   "name": "msgpack-rpc-node",
-  "version": "1.0.0",
+  "version": "0.1.0-alpha",
   "description": "MessagePack RPC implementation for Node",
   "main": "./dist/index.js",
   "scripts": {
