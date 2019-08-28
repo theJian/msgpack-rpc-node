@@ -8,8 +8,13 @@
     "test": "jest",
     "build": "tsc",
     "format": "prettier --write 'src/**/*.ts'",
-    "lint": "eslint --ext .ts src"
+    "lint": "eslint --ext .ts src",
+    "prepublishOnly": "npm run build && npm test"
   },
+  "files": [
+    "src/**/*",
+    "dist/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theJian/msgpack-rpc-node.git"
