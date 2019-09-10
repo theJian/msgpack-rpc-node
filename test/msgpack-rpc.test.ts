@@ -75,6 +75,25 @@ describe('unix sockets', () => {
     })
   });
 
+  test('client throws error', async () => {
+    const client = createClient();
+    await expect(client.connect()).rejects.toThrow();
+
+    const server = createServer({
+      sum(a: number, b: number) {
+        return a + b;
+      }
+    });
+
+    await client.connect();
+
+    const resultSum = await client.call('sum', 5, 7);
+    expect(resultSum).toBe(12);
+
+    server.close();
+    client.close();
+  });
+
   test('server throws error', async () => {
     const server = createServer({
       async asyncThrowError() {

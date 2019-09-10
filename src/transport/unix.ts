@@ -53,20 +53,30 @@ export class UnixServer extends ServerTransport {
 }
 
 export class UnixClient extends ClientTransport {
-  private client: net.Socket;
+  private client?: net.Socket;
 
-  constructor(private session: Session<UnixClient>, path: string) {
+  constructor(private readonly session: Session<UnixClient>, private readonly path: string) {
     super();
-    this.client = net.createConnection(path)
-    .on('data', data => {
-      this.onRead(data);
-    });
   }
 
   connect(): Promise<boolean> | boolean {
-    if (!this.client.connecting) return true;
-    return new Promise(resolve => {
-      this.client.on('connect', () => resolve(true))
+    if (this.client == null) {
+      this.client = net.createConnection(this.path)
+        .on('data', data => {
+          this.onRead(data);
+        });
+    } else if (!this.client.connecting) {
+      this.client.connect(this.path);
+    }
+
+    return new Promise((resolve, reject) => {
+      this.client!!
+        .once('connect', () => {
+          resolve(true);
+        })
+        .once('error', (err: Error) => {
+          reject(err);
+        })
     });
   }
 
@@ -75,13 +85,15 @@ export class UnixClient extends ClientTransport {
   }
 
   sendData(data: Uint8Array) {
-    if (this.client.destroyed || this.client.connecting) {
+    if (this.client == null || this.client.destroyed || this.client.connecting) {
       throw new NoConnectionError('Client is not connected to server.');
     }
     this.client.write(data);
   }
 
   close() {
-    this.client.end();
+    if (this.client) {
+      this.client.end();
+    }
   }
 }
