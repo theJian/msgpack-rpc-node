@@ -6,6 +6,7 @@
   "scripts": {
     "pretest": "npm run build",
     "test": "jest",
+    "test:watch": "jest -w",
     "build": "tsc",
     "format": "prettier --write 'src/**/*.ts'",
     "lint": "eslint --ext .ts src",
