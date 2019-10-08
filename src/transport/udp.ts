@@ -11,13 +11,14 @@ export class UdpServer extends ServerTransport {
   constructor(private server: Server, port: number, host?: string, socketType: dgram.SocketType = 'udp4') {
     super();
 
-    this.udpServer = dgram.createSocket(socketType);
-    this.udpServer.on('message', (msg, remote) => {
-      if (!this.remote) {
-        this.remote = remote;
-      }
-      this.onRead(msg);
-    });
+    this.udpServer = dgram.createSocket(socketType)
+      .on('message', (msg, remote) => {
+        if (!this.remote) {
+          this.remote = remote;
+        }
+        this.onRead(msg);
+      });
+
     this.udpServer.bind(port, host);
   }
 
@@ -56,8 +57,14 @@ export class UdpClient extends ClientTransport {
   }
 
   connect(): Promise<boolean> | boolean {
-    this.client = dgram.createSocket(this.socketType);
-    return true
+    if (this.client == null) {
+      this.client = dgram.createSocket(this.socketType)
+        .on('message', (msg) => {
+          this.onRead(msg);
+        });
+    }
+
+    return true;
   }
 
   onResponse(msgId: MsgId, error: Error | null, result: unknown) {
