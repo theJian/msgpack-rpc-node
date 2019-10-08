@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/theJian/msgpack-rpc-node.git"
   },
-  "keywords": [],
+  "keywords": ["msgpack", "rpc", "msgpack-rpc"],
   "author": "theJian <thejianmail@gmail.com>",
   "license": "MIT",
   "bugs": {
