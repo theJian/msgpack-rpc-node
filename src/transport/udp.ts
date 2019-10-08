@@ -1,16 +1,21 @@
 import * as dgram from 'dgram';
 import { ServerTransport, ClientTransport, MsgId } from './base';
+import { NoConnectionError } from '../error';
 import { Session } from '../session';
 import { Server } from '../server';
 
 export class UdpServer extends ServerTransport {
   private udpServer: dgram.Socket;
+  private remote?: dgram.RemoteInfo;
 
   constructor(private server: Server, port: number, host?: string, socketType: dgram.SocketType = 'udp4') {
     super();
 
     this.udpServer = dgram.createSocket(socketType);
     this.udpServer.on('message', (msg, remote) => {
+      if (!this.remote) {
+        this.remote = remote;
+      }
       this.onRead(msg);
     });
     this.udpServer.bind(port, host);
@@ -32,7 +37,10 @@ export class UdpServer extends ServerTransport {
   }
 
   sendData(data: Uint8Array) {
-    // this.udpServer.send()
+    if (!this.remote) {
+      throw new NoConnectionError('Connection not found.')
+    }
+    this.udpServer.send(data, 0, data.length, this.remote.port, this.remote.address);
   }
 
   close() {
@@ -57,7 +65,10 @@ export class UdpClient extends ClientTransport {
   }
 
   sendData(data: Uint8Array) {
-
+    if (!this.client) {
+      throw new NoConnectionError('Client is not connected to server.');
+    }
+    this.client.send(data, 0, data.length, this.port, this.host);
   }
 
   close() {
