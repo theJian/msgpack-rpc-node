@@ -91,13 +91,6 @@ export class TcpClient extends ClientTransport {
       throw new NoConnectionError('Client is not connected to server.');
     }
     this.client.write(data);
-
-    // let stream = this.client;
-    // new Promise( async (resolve, reject) => {
-    //   let msg = await decodeAsync(stream);
-    //   console.log('decodeasync result: ', msg);
-    //   this.onRead(msg);
-    // });  
   }
 
   close() {
