@@ -1,6 +1,6 @@
 {
   "name": "msgpack-rpc-node",
-  "version": "0.1.0-alpha.3",
+  "version": "0.2.0",
   "description": "MessagePack RPC implementation for Node",
   "main": "./dist/index.js",
   "scripts": {
@@ -20,16 +20,17 @@
     "type": "git",
     "url": "git+https://github.com/theJian/msgpack-rpc-node.git"
   },
-  "keywords": ["msgpack", "rpc", "msgpack-rpc"],
+  "keywords": [
+    "msgpack",
+    "rpc",
+    "msgpack-rpc"
+  ],
   "author": "theJian <thejianmail@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/theJian/msgpack-rpc-node/issues"
   },
   "homepage": "https://github.com/theJian/msgpack-rpc-node#readme",
-  "dependencies": {
-    "@msgpack/msgpack": "^1.8.0"
-  },
   "devDependencies": {
     "@types/jest": "24.0.19",
     "@types/node": "12.12.3",
@@ -41,6 +42,9 @@
     "jest": "24.9.0",
     "prettier": "1.18.2",
     "ts-jest": "24.1.0",
-    "typescript": "3.6.4"
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@msgpack/msgpack": "^2.7.2"
   }
 }
