@@ -3,6 +3,7 @@ import { ServerTransport, ClientTransport, MsgId } from './base';
 import { NoConnectionError } from '../error';
 import { Session } from '../session';
 import { Server } from '../server';
+import { decodeMultiStream } from '@msgpack/msgpack';
 
 export class TcpServer extends ServerTransport {
   private socket?: net.Socket;
@@ -49,6 +50,7 @@ export class TcpServer extends ServerTransport {
 
 export class TcpClient extends ClientTransport {
   private client?: net.Socket;
+  private streamProcessor: Promise<void> | undefined ;
 
   constructor(private readonly session: Session<TcpClient>, private readonly port: number, private readonly host: string) {
     super();
@@ -56,17 +58,22 @@ export class TcpClient extends ClientTransport {
 
   connect(): Promise<boolean> | boolean {
     if (this.client == null) {
-      this.client = net.createConnection(this.port, this.host)
-        .on('data', data => {
-          this.onRead(data);
-        });
+      this.client = net.createConnection(this.port, this.host);
     } else if (!this.client.connecting) {
       this.client.connect(this.port, this.host);
     }
 
     return new Promise((resolve, reject) => {
-      this.client!!
-        .once('connect', () => {
+      if (!this.client) reject(new Error('Socket not defined'));
+
+      const socket = this.client as net.Socket;
+      socket.once('connect', async () => {
+          this.streamProcessor = 
+            (async () => {
+              for await (const msg of decodeMultiStream(socket)) {
+                this.onRead(msg);
+              }
+            })();
           resolve(true)
         })
         .once('error', (err: Error) => {

@@ -37,8 +37,8 @@ export abstract class ClientTransport implements BaseTransport {
   abstract onResponse(msgId: MsgId, error: Error, result: unknown): void;
   abstract connect(): boolean | Promise<boolean>;
 
-  onRead(data: Buffer) {
-    const message = decode(data);
+  onRead(data: Buffer | unknown) {
+    const message = (data instanceof Buffer) ? decode(data) : data;
 
     if (!Array.isArray(message) || (message.length != 4 && message.length != 3)) {
       throw new RPCError(`Invalid MessagePack-RPC protocol: message = ${message}`);
